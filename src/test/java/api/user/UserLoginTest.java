@@ -6,6 +6,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.apache.http.HttpStatus;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -16,6 +17,11 @@ public class UserLoginTest extends BaseUserTest {
 
     private static final String WRONG_CREDENTIALS_MESSAGE = "email or password are incorrect";
 
+    @Before
+    public void beforeEach() {
+        userSteps.registerUser(user);
+    }
+
     @After
     public void afterEach() {
         userSteps.deleteUser(user);
@@ -24,7 +30,6 @@ public class UserLoginTest extends BaseUserTest {
     @Test
     @Story("Вход под существующим пользователем")
     public void loginWithValidCredentialsTest() {
-        userSteps.registerUser(user);
         userSteps.loginUser(user)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
@@ -36,7 +41,6 @@ public class UserLoginTest extends BaseUserTest {
     @Story("Вход с некорректным полем")
     @Description("Вход с неверными эмейлом")
     public void loginWithInvalidEmailTest() {
-        userSteps.registerUser(user);
         String realUserEmail = user.getEmail();
         user.setEmail(INVALID_DATA);
         userSteps.loginUser(user)
@@ -51,7 +55,6 @@ public class UserLoginTest extends BaseUserTest {
     @Story("Вход с некорректным полем")
     @Description("Вход с неверными паролем")
     public void loginWithInvalidPasswordTest() {
-        userSteps.registerUser(user);
         String realUserPassword = user.getPassword();
         user.setPassword(INVALID_DATA);
         userSteps.loginUser(user)

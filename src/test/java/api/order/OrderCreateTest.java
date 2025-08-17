@@ -20,6 +20,7 @@ public class OrderCreateTest extends BaseTest {
     private final UserSteps userSteps = new UserSteps();
     private final OrderSteps orderSteps = new OrderSteps();
     private final String[] ingredients = {"61c0c5a71d1f82001bdaaa6d"};
+    private static final String NO_INGREDIENTS_ERROR_MESSAGE = "Ingredient ids must be provided";
 
     @Test
     @Story("Создание заказа")
@@ -53,7 +54,9 @@ public class OrderCreateTest extends BaseTest {
         userSteps.loginUser(testUser);
         orderSteps.createOrder(testUser.getAccessToken())
                 .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST);
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .body(RESPONSE_SUCCESS_FIELD, equalTo(false))
+                .body(RESPONSE_MESSAGE_FIELD, equalTo(NO_INGREDIENTS_ERROR_MESSAGE));
         userSteps.deleteUser(testUser);
     }
 
