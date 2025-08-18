@@ -9,6 +9,8 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -21,19 +23,28 @@ public class OrderCreateTest extends BaseTest {
     private final OrderSteps orderSteps = new OrderSteps();
     private final String[] ingredients = {"61c0c5a71d1f82001bdaaa6d"};
     private static final String NO_INGREDIENTS_ERROR_MESSAGE = "Ingredient ids must be provided";
+    private User testUser;
+
+    @Before
+    public void beforeEach() {
+        testUser = userSteps.initTestUser();
+        userSteps.registerUser(testUser);
+    }
+
+    @After
+    public void afterEach() {
+        userSteps.deleteUser(testUser);
+    }
 
     @Test
     @Story("Создание заказа")
     @Description("Успешное создание заказа с авторизацией")
     public void createOrderWithAuthTest() {
-        User testUser = userSteps.initTestUser();
-        userSteps.registerUser(testUser);
         userSteps.loginUser(testUser);
         orderSteps.createOrder(testUser.getAccessToken(), ingredients)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .body(RESPONSE_SUCCESS_FIELD, equalTo(true));
-        userSteps.deleteUser(testUser);
     }
 
     @Test
@@ -49,27 +60,21 @@ public class OrderCreateTest extends BaseTest {
     @Story("Создание заказа")
     @Description("Создание заказа без ингридиентов")
     public void createOrderWithoutIngredientsTest() {
-        User testUser = userSteps.initTestUser();
-        userSteps.registerUser(testUser);
         userSteps.loginUser(testUser);
         orderSteps.createOrder(testUser.getAccessToken())
                 .then()
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .body(RESPONSE_SUCCESS_FIELD, equalTo(false))
                 .body(RESPONSE_MESSAGE_FIELD, equalTo(NO_INGREDIENTS_ERROR_MESSAGE));
-        userSteps.deleteUser(testUser);
     }
 
     @Test
     @Story("Создание заказа")
     @Description("Создание заказа невалидными ингридиентами")
     public void createOrderWithInvalidIngredientsTest() {
-        User testUser = userSteps.initTestUser();
-        userSteps.registerUser(testUser);
         userSteps.loginUser(testUser);
         orderSteps.createOrder(testUser.getAccessToken(), new String[]{INVALID_DATA})
                 .then()
                 .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        userSteps.deleteUser(testUser);
     }
 }

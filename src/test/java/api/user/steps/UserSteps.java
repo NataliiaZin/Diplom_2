@@ -41,12 +41,14 @@ public class UserSteps {
         if (user.getAccessToken() == null) {
             loginUser(user);
         }
-        given()
-                .header(HttpHeaders.AUTHORIZATION, user.getAccessToken())
-                .contentType(String.valueOf(ContentType.JSON))
-                .body(user)
-                .when()
-                .post(USER_DELETE_ENDPOINT);
+        if (user.getAccessToken() != null) {
+            given()
+                    .header(HttpHeaders.AUTHORIZATION, user.getAccessToken())
+                    .contentType(String.valueOf(ContentType.JSON))
+                    .body(user)
+                    .when()
+                    .post(USER_DELETE_ENDPOINT);
+        }
     }
 
     @Step("Удаление пользователя")
